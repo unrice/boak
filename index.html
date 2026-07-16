@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>书籍列表</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f0eb;color:#3a3a3a;padding:40px 24px}
+h1{font-size:24px;margin-bottom:24px;color:#222}
+ul{list-style:none}
+li{margin-bottom:8px}
+a{display:block;padding:12px 16px;background:#fff;border-radius:6px;color:#b82c1c;text-decoration:none;font-size:16px;border:1px solid #e6e0d9}
+a:hover{background:#fef5f2;border-color:#b82c1c}
+.loading{color:#999;font-size:14px;padding:12px 16px}
+.error{color:#b82c1c;font-size:14px;padding:12px 16px}
+</style>
+</head>
+<body>
+<h1>书籍列表</h1>
+<ul id="list"><li class="loading">加载中...</li></ul>
+<script>
+const USERNAME = '你的用户名'
+const REPO = 'book'
+
+fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/`)
+  .then(r => r.json())
+  .then(files => {
+    if (!Array.isArray(files)) throw new Error('获取失败')
+    const list = document.getElementById('list')
+    const books = files.filter(f => f.name.endsWith('.html'))
+                       .filter(f => f.name !== 'index.html')
+    if (books.length === 0) {
+      list.innerHTML = '<li class="loading">暂无书籍</li>'
+      return
+    }
+    list.innerHTML = books.map(f =>
+      `<li><a href="${f.name}">${f.name.replace('.html', '')}</a></li>`
+    ).join('')
+  })
+  .catch(e => {
+    document.getElementById('list').innerHTML = `<li class="error">加载失败: ${e.message}</li>`
+  })
+</script>
+</body>
+</html>
